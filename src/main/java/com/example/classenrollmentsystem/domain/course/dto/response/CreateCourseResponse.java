@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CreateCourseResponse {
     private Long id;
+    private String title;
 }

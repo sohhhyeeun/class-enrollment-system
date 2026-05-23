@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class UpdateCourseStatusResponse {
-    private Long id;
+    private Long courseId;
     private CourseStatus status;
 }

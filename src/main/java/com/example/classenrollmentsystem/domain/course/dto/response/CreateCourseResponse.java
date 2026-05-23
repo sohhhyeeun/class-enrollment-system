@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CreateCourseResponse {
-    private Long id;
+    private Long courseId;
     private String title;
 }

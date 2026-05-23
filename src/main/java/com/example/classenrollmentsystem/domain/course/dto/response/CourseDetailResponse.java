@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 public class CourseDetailResponse {
-    private Long id;
+    private Long courseId;
     private String title;
     private String description;
     private Integer price;

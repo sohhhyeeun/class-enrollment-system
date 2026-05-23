@@ -39,4 +39,15 @@ public class Enrollment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    private Enrollment(User user, Course course) {
+        this.enrolledAt = LocalDateTime.now();
+        this.status = EnrollmentStatus.PENDING;
+        this.user = user;
+        this.course = course;
+    }
+
+    public static Enrollment create(User user, Course course) {
+        return new Enrollment(user, course);
+    }
 }

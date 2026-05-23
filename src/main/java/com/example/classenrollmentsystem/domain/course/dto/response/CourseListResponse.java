@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 public class CourseListResponse {
-    private Long id;
+    private Long courseId;
     private String title;
     private Integer price;
     private Integer capacity;

@@ -45,4 +45,20 @@ public class Course {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    private Course(String title, String description, Integer price, Integer capacity, LocalDate startDate, LocalDate endDate, User user) {
+        this.title = title;
+        this.description = description;
+        this.price = price;
+        this.capacity = capacity;
+        this.currentEnrollmentCount = 0;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = CourseStatus.DRAFT;
+        this.user = user;
+    }
+
+    public static Course create(String title, String description, Integer price, Integer capacity, LocalDate startDate, LocalDate endDate, User user) {
+        return new Course(title, description, price, capacity, startDate, endDate, user);
+    }
 }

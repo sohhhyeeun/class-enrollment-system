@@ -14,7 +14,6 @@ public class CourseListResponse {
     private String title;
     private Integer price;
     private Integer capacity;
-    private Integer currentEnrollmentCount;
     private LocalDate startDate;
     private LocalDate endDate;
     private CourseStatus status;
@@ -26,7 +25,6 @@ public class CourseListResponse {
                 course.getTitle(),
                 course.getPrice(),
                 course.getCapacity(),
-                course.getCurrentEnrollmentCount(),
                 course.getStartDate(),
                 course.getEndDate(),
                 course.getStatus(),

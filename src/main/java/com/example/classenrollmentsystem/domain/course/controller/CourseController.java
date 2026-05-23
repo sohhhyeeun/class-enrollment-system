@@ -3,6 +3,7 @@ package com.example.classenrollmentsystem.domain.course.controller;
 import com.example.classenrollmentsystem.common.ApiResponse;
 import com.example.classenrollmentsystem.domain.course.dto.request.CreateCourseRequest;
 import com.example.classenrollmentsystem.domain.course.dto.request.UpdateCourseStatusRequest;
+import com.example.classenrollmentsystem.domain.course.dto.response.CourseDetailResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.CourseListResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.CreateCourseResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.UpdateCourseStatusResponse;
@@ -45,5 +46,13 @@ public class CourseController {
 
         return ResponseEntity
                 .ok(ApiResponse.success("강의 목록이 조회되었습니다.", response));
+    }
+
+    @GetMapping("/{courseId}")
+    public ResponseEntity<ApiResponse<CourseDetailResponse>> getCourseDetail(@PathVariable("courseId") Long courseId) {
+        CourseDetailResponse response = courseService.getCourseDetail(courseId);
+
+        return ResponseEntity
+                .ok(ApiResponse.success("강의 상세가 조회되었습니다.", response));
     }
 }

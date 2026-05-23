@@ -2,6 +2,7 @@ package com.example.classenrollmentsystem.domain.course.service;
 
 import com.example.classenrollmentsystem.domain.course.dto.request.CreateCourseRequest;
 import com.example.classenrollmentsystem.domain.course.dto.request.UpdateCourseStatusRequest;
+import com.example.classenrollmentsystem.domain.course.dto.response.CourseDetailResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.CourseListResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.CreateCourseResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.UpdateCourseStatusResponse;
@@ -69,5 +70,12 @@ public class CourseService {
         return courses.stream()
                 .map(CourseListResponse::from)
                 .toList();
+    }
+
+    public CourseDetailResponse getCourseDetail(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow();
+
+        return CourseDetailResponse.from(course);
     }
 }

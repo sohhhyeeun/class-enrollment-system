@@ -1,7 +1,9 @@
 package com.example.classenrollmentsystem.domain.course.service;
 
 import com.example.classenrollmentsystem.domain.course.dto.request.CreateCourseRequest;
+import com.example.classenrollmentsystem.domain.course.dto.request.UpdateCourseStatusRequest;
 import com.example.classenrollmentsystem.domain.course.dto.response.CreateCourseResponse;
+import com.example.classenrollmentsystem.domain.course.dto.response.UpdateCourseStatusResponse;
 import com.example.classenrollmentsystem.domain.course.entity.Course;
 import com.example.classenrollmentsystem.domain.course.repository.CourseRepository;
 import com.example.classenrollmentsystem.domain.user.entity.User;
@@ -34,6 +36,20 @@ public class CourseService {
 
         Course savedCourse = courseRepository.save(course);
 
-        return new CreateCourseResponse(savedCourse.getId());
+        return new CreateCourseResponse(savedCourse.getId(), savedCourse.getTitle());
+    }
+
+    @Transactional
+    public UpdateCourseStatusResponse updateCourseStatus(Long userId, Long courseId, UpdateCourseStatusRequest request) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow();
+
+        if (!course.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException();
+        }
+
+        course.updateStatus(request.getStatus());
+
+        return new UpdateCourseStatusResponse(course.getId(), course.getStatus());
     }
 }

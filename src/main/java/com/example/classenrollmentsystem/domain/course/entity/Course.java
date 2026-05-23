@@ -61,4 +61,8 @@ public class Course {
     public static Course create(String title, String description, Integer price, Integer capacity, LocalDate startDate, LocalDate endDate, User user) {
         return new Course(title, description, price, capacity, startDate, endDate, user);
     }
+
+    public void updateStatus(CourseStatus status) {
+        this.status = status;
+    }
 }

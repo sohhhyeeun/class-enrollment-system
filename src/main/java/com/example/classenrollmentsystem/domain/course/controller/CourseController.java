@@ -2,7 +2,9 @@ package com.example.classenrollmentsystem.domain.course.controller;
 
 import com.example.classenrollmentsystem.common.ApiResponse;
 import com.example.classenrollmentsystem.domain.course.dto.request.CreateCourseRequest;
+import com.example.classenrollmentsystem.domain.course.dto.request.UpdateCourseStatusRequest;
 import com.example.classenrollmentsystem.domain.course.dto.response.CreateCourseResponse;
+import com.example.classenrollmentsystem.domain.course.dto.response.UpdateCourseStatusResponse;
 import com.example.classenrollmentsystem.domain.course.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +25,13 @@ public class CourseController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success("강의 등록이 완료되었습니다.", response));
+    }
+
+    @PatchMapping("/{courseId}/status")
+    public ResponseEntity<ApiResponse<UpdateCourseStatusResponse>> updateCourseStatus(@RequestHeader("X-USER-ID") Long userId, @PathVariable("courseId") Long courseId, @Valid @RequestBody UpdateCourseStatusRequest request) {
+        UpdateCourseStatusResponse response = courseService.updateCourseStatus(userId, courseId, request);
+
+        return ResponseEntity
+                .ok(ApiResponse.success("강의 상태가 변경되었습니다.", response));
     }
 }

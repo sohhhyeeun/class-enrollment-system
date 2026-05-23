@@ -1,4 +1,4 @@
-package com.example.classenrollmentsystem.user.entity;
+package com.example.classenrollmentsystem.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

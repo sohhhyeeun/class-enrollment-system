@@ -1,4 +1,4 @@
-package com.example.classenrollmentsystem.enrollment.entity;
+package com.example.classenrollmentsystem.domain.enrollment.entity;
 
 public enum EnrollmentStatus {
     PENDING,

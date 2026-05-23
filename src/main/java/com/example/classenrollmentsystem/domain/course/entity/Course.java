@@ -1,6 +1,6 @@
-package com.example.classenrollmentsystem.course.entity;
+package com.example.classenrollmentsystem.domain.course.entity;
 
-import com.example.classenrollmentsystem.user.entity.User;
+import com.example.classenrollmentsystem.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

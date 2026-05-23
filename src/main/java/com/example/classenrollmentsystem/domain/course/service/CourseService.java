@@ -2,15 +2,19 @@ package com.example.classenrollmentsystem.domain.course.service;
 
 import com.example.classenrollmentsystem.domain.course.dto.request.CreateCourseRequest;
 import com.example.classenrollmentsystem.domain.course.dto.request.UpdateCourseStatusRequest;
+import com.example.classenrollmentsystem.domain.course.dto.response.CourseListResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.CreateCourseResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.UpdateCourseStatusResponse;
 import com.example.classenrollmentsystem.domain.course.entity.Course;
+import com.example.classenrollmentsystem.domain.course.entity.CourseStatus;
 import com.example.classenrollmentsystem.domain.course.repository.CourseRepository;
 import com.example.classenrollmentsystem.domain.user.entity.User;
 import com.example.classenrollmentsystem.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +55,19 @@ public class CourseService {
         course.updateStatus(request.getStatus());
 
         return new UpdateCourseStatusResponse(course.getId(), course.getStatus());
+    }
+
+    public List<CourseListResponse> getCourses(CourseStatus status) {
+        List<Course> courses;
+
+        if (status == null) {
+            courses = courseRepository.findAll();
+        } else {
+            courses = courseRepository.findByStatus(status);
+        }
+
+        return courses.stream()
+                .map(CourseListResponse::from)
+                .toList();
     }
 }

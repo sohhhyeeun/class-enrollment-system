@@ -65,4 +65,13 @@ public class Course {
     public void updateStatus(CourseStatus status) {
         this.status = status;
     }
+
+    public void increaseEnrollmentCount() {
+        this.currentEnrollmentCount++;
+
+        // 정원 초과 시 모집 마감
+        if (this.currentEnrollmentCount >= this.capacity) {
+            this.status = CourseStatus.CLOSED;
+        }
+    }
 }

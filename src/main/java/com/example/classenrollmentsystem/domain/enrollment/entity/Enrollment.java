@@ -50,4 +50,8 @@ public class Enrollment {
     public static Enrollment create(User user, Course course) {
         return new Enrollment(user, course);
     }
+
+    public void confirm() {
+        this.status = EnrollmentStatus.CONFIRMED;
+    }
 }

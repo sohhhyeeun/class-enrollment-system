@@ -3,6 +3,7 @@ package com.example.classenrollmentsystem.domain.course.dto.request;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateCourseRequest {
     @NotBlank(message = "강의 제목은 필수입니다.")
     private String title;

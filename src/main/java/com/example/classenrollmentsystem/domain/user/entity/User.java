@@ -16,4 +16,12 @@ public class User {
 
     @Column(nullable = false, length = 50)
     private String name;
+
+    private User(String name) {
+        this.name = name;
+    }
+
+    public static User create(String name) {
+        return new User(name);
+    }
 }

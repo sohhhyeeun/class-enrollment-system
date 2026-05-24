@@ -4,11 +4,14 @@ import com.example.classenrollmentsystem.common.ApiResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.CancelEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.ConfirmEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.CreateEnrollmentResponse;
+import com.example.classenrollmentsystem.domain.enrollment.dto.response.MyEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,5 +42,13 @@ public class EnrollmentController {
 
         return ResponseEntity
                 .ok(ApiResponse.success("수강 취소가 되었습니다.", response));
+    }
+
+    @GetMapping("/enrollments/my")
+    public ResponseEntity<ApiResponse<List<MyEnrollmentResponse>>> getMyEnrollments(@RequestHeader("X-USER-ID") Long userId) {
+        List<MyEnrollmentResponse> response = enrollmentService.getMyEnrollments(userId);
+
+        return ResponseEntity
+                .ok(ApiResponse.success("내 수강 신청 목록이 조회되었습니다.", response));
     }
 }

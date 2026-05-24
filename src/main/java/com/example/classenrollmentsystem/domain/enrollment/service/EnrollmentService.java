@@ -6,6 +6,7 @@ import com.example.classenrollmentsystem.domain.course.repository.CourseReposito
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.CancelEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.ConfirmEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.CreateEnrollmentResponse;
+import com.example.classenrollmentsystem.domain.enrollment.dto.response.MyEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.entity.Enrollment;
 import com.example.classenrollmentsystem.domain.enrollment.entity.EnrollmentStatus;
 import com.example.classenrollmentsystem.domain.enrollment.repository.EnrollmentRepository;
@@ -14,6 +15,8 @@ import com.example.classenrollmentsystem.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -107,5 +110,14 @@ public class EnrollmentService {
         }
 
         return new CancelEnrollmentResponse(enrollment.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MyEnrollmentResponse> getMyEnrollments(Long userId) {
+        List<Enrollment> enrollments = enrollmentRepository.findAllByUserId(userId);
+
+        return enrollments.stream()
+                .map(MyEnrollmentResponse::from)
+                .toList();
     }
 }

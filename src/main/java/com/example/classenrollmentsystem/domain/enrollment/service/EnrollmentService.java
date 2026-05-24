@@ -68,7 +68,8 @@ public class EnrollmentService {
             throw new IllegalArgumentException();
         }
 
-        Course course = enrollment.getCourse();
+        Course course = courseRepository.findByIdWithPessimisticLock(enrollment.getCourse().getId())
+                .orElseThrow();
 
         // OPEN 상태 강의만 수강 확정 가능
         if (course.getStatus() != CourseStatus.OPEN) {
@@ -101,13 +102,16 @@ public class EnrollmentService {
         }
 
         EnrollmentStatus previousStatus = enrollment.getStatus();
-        Course course = enrollment.getCourse();
-        enrollment.cancel();
 
         // CONFIRMED 상태 신청에만 정원 감소
         if (previousStatus == EnrollmentStatus.CONFIRMED) {
+            Course course = courseRepository.findByIdWithPessimisticLock(enrollment.getCourse().getId())
+                    .orElseThrow();
+
             course.decreaseEnrollmentCount();
         }
+
+        enrollment.cancel();
 
         return new CancelEnrollmentResponse(enrollment.getId());
     }

@@ -74,4 +74,15 @@ public class Course {
             this.status = CourseStatus.CLOSED;
         }
     }
+
+    public void decreaseEnrollmentCount() {
+        if (this.currentEnrollmentCount > 0) {
+            this.currentEnrollmentCount--;
+        }
+
+        // 정원이 비면 모집 중으로 변경
+        if (this.currentEnrollmentCount < this.capacity && this.status == CourseStatus.CLOSED) {
+            this.status = CourseStatus.OPEN;
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.example.classenrollmentsystem.domain.enrollment.service;
 import com.example.classenrollmentsystem.domain.course.entity.Course;
 import com.example.classenrollmentsystem.domain.course.entity.CourseStatus;
 import com.example.classenrollmentsystem.domain.course.repository.CourseRepository;
+import com.example.classenrollmentsystem.domain.enrollment.dto.response.CancelEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.ConfirmEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.CreateEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.entity.Enrollment;
@@ -80,5 +81,31 @@ public class EnrollmentService {
         course.increaseEnrollmentCount();
 
         return new ConfirmEnrollmentResponse(enrollment.getId());
+    }
+
+    public CancelEnrollmentResponse cancelEnrollment(Long userId, Long enrollmentId) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow();
+
+        // 본인 신청만 수강 취소 가능
+        if (!enrollment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException();
+        }
+
+        // 이미 취소된 신청은 재취소 불가
+        if (enrollment.getStatus() == EnrollmentStatus.CANCELLED) {
+            throw new IllegalArgumentException();
+        }
+
+        EnrollmentStatus previousStatus = enrollment.getStatus();
+        Course course = enrollment.getCourse();
+        enrollment.cancel();
+
+        // CONFIRMED 상태 신청에만 정원 감소
+        if (previousStatus == EnrollmentStatus.CONFIRMED) {
+            course.decreaseEnrollmentCount();
+        }
+
+        return new CancelEnrollmentResponse(enrollment.getId());
     }
 }

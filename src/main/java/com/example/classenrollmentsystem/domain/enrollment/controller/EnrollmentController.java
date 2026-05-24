@@ -1,6 +1,7 @@
 package com.example.classenrollmentsystem.domain.enrollment.controller;
 
 import com.example.classenrollmentsystem.common.ApiResponse;
+import com.example.classenrollmentsystem.domain.enrollment.dto.response.CancelEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.ConfirmEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.dto.response.CreateEnrollmentResponse;
 import com.example.classenrollmentsystem.domain.enrollment.service.EnrollmentService;
@@ -30,5 +31,13 @@ public class EnrollmentController {
 
         return ResponseEntity
                 .ok(ApiResponse.success("수강 확정이 되었습니다.", response));
+    }
+
+    @PatchMapping("/enrollments/{enrollmentId}/cancel")
+    public ResponseEntity<ApiResponse<CancelEnrollmentResponse>> cancelEnrollment(@RequestHeader("X-USER-ID") Long userId, @PathVariable("enrollmentId") Long enrollmentId) {
+        CancelEnrollmentResponse response = enrollmentService.cancelEnrollment(userId, enrollmentId);
+
+        return ResponseEntity
+                .ok(ApiResponse.success("수강 취소가 되었습니다.", response));
     }
 }

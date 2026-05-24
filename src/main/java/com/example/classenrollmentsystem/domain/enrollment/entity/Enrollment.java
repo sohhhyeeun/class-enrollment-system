@@ -54,4 +54,8 @@ public class Enrollment {
     public void confirm() {
         this.status = EnrollmentStatus.CONFIRMED;
     }
+
+    public void cancel() {
+        this.status = EnrollmentStatus.CANCELLED;
+    }
 }

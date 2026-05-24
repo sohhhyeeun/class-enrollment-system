@@ -27,7 +27,7 @@ public class CourseService {
     @Transactional
     public CreateCourseResponse createCourse(Long userId, CreateCourseRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         Course course = Course.create(
                 request.getTitle(),
@@ -47,10 +47,10 @@ public class CourseService {
     @Transactional
     public UpdateCourseStatusResponse updateCourseStatus(Long userId, Long courseId, UpdateCourseStatusRequest request) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
 
         if (!course.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("강의 상태 변경 권한이 없습니다.");
         }
 
         course.updateStatus(request.getStatus());
@@ -74,7 +74,7 @@ public class CourseService {
 
     public CourseDetailResponse getCourseDetail(Long courseId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
 
         return CourseDetailResponse.from(course);
     }

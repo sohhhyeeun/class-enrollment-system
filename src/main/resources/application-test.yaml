@@ -1,12 +1,6 @@
 spring:
-  profiles:
-    include: secret
-
-  application:
-    name: class-enrollment-system
-
   datasource:
-    url: jdbc:mysql://localhost:3306/class_enrollment
+    url: jdbc:mysql://localhost:3306/class_enrollment_test
     username: '${db.username}'
     password: '${db.password}'
     driver-class-name: com.mysql.cj.jdbc.Driver

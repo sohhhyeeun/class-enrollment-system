@@ -55,7 +55,7 @@ public class EnrollmentService {
     }
 
     public ConfirmEnrollmentResponse confirmEnrollment(Long userId, Long enrollmentId) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+        Enrollment enrollment = enrollmentRepository.findByIdWithPessimisticLock(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 수강 신청입니다."));
 
         // 본인 신청만 수강 확정 가능
@@ -88,7 +88,7 @@ public class EnrollmentService {
     }
 
     public CancelEnrollmentResponse cancelEnrollment(Long userId, Long enrollmentId) {
-        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+        Enrollment enrollment = enrollmentRepository.findByIdWithPessimisticLock(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 수강 신청입니다."));
 
         // 본인 신청만 수강 취소 가능

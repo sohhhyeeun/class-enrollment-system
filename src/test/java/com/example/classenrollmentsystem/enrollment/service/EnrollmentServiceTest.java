@@ -66,6 +66,7 @@ class EnrollmentServiceTest {
         course.updateStatus(CourseStatus.OPEN);
 
         Enrollment enrollment = Enrollment.create(classmate, course);
+        ReflectionTestUtils.setField(enrollment, "id", 1L);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(classmate));
         given(courseRepository.findById(courseId)).willReturn(Optional.of(course));
@@ -105,8 +106,9 @@ class EnrollmentServiceTest {
         course.updateStatus(CourseStatus.OPEN);
 
         Enrollment enrollment = Enrollment.create(classmate, course);
+        ReflectionTestUtils.setField(enrollment, "id", enrollmentId);
 
-        given(enrollmentRepository.findById(enrollmentId)).willReturn(Optional.of(enrollment));
+        given(enrollmentRepository.findByIdWithPessimisticLock(enrollmentId)).willReturn(Optional.of(enrollment));
         given(courseRepository.findByIdWithPessimisticLock(course.getId())).willReturn(Optional.of(course));
 
         // when
@@ -143,10 +145,11 @@ class EnrollmentServiceTest {
         course.updateStatus(CourseStatus.OPEN);
 
         Enrollment enrollment = Enrollment.create(classmate, course);
+        ReflectionTestUtils.setField(enrollment, "id", enrollmentId);
 
         enrollment.confirm();
 
-        given(enrollmentRepository.findById(enrollmentId)).willReturn(Optional.of(enrollment));
+        given(enrollmentRepository.findByIdWithPessimisticLock(enrollmentId)).willReturn(Optional.of(enrollment));
         given(courseRepository.findByIdWithPessimisticLock(course.getId())).willReturn(Optional.of(course));
 
         // when

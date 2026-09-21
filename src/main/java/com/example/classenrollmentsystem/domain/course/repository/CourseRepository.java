@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CourseRepository extends JpaRepository<Course, Long> {
-    List<Course> findByStatus(CourseStatus status);
+    @Query("SELECT c FROM Course c JOIN FETCH c.user WHERE (:status IS NULL OR c.status = :status)")
+    List<Course> findCoursesWithUser(@Param("status") CourseStatus status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Course c WHERE c.id = :id")

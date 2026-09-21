@@ -59,13 +59,7 @@ public class CourseService {
     }
 
     public List<CourseListResponse> getCourses(CourseStatus status) {
-        List<Course> courses;
-
-        if (status == null) {
-            courses = courseRepository.findAll();
-        } else {
-            courses = courseRepository.findByStatus(status);
-        }
+        List<Course> courses = courseRepository.findCoursesWithUser(status);
 
         return courses.stream()
                 .map(CourseListResponse::from)

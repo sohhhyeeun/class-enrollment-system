@@ -97,7 +97,7 @@ class CourseServiceTest {
 
         UpdateCourseStatusRequest request = new UpdateCourseStatusRequest(CourseStatus.OPEN);
 
-        given(courseRepository.findById(courseId)).willReturn(Optional.of(course));
+        given(courseRepository.findByIdWithPessimisticLock(courseId)).willReturn(Optional.of(course));
 
         // when
         UpdateCourseStatusResponse response = courseService.updateCourseStatus(userId, courseId, request);

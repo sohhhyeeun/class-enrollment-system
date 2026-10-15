@@ -46,7 +46,7 @@ public class CourseService {
 
     @Transactional
     public UpdateCourseStatusResponse updateCourseStatus(Long userId, Long courseId, UpdateCourseStatusRequest request) {
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findByIdWithPessimisticLock(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 강의입니다."));
 
         if (!course.getUser().getId().equals(userId)) {

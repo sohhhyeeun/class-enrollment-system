@@ -4,7 +4,7 @@ import com.example.classenrollmentsystem.common.ApiResponse;
 import com.example.classenrollmentsystem.domain.course.dto.request.CreateCourseRequest;
 import com.example.classenrollmentsystem.domain.course.dto.request.UpdateCourseStatusRequest;
 import com.example.classenrollmentsystem.domain.course.dto.response.CourseDetailResponse;
-import com.example.classenrollmentsystem.domain.course.dto.response.CourseListResponse;
+import com.example.classenrollmentsystem.domain.course.dto.response.CourseListPageResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.CreateCourseResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.UpdateCourseStatusResponse;
 import com.example.classenrollmentsystem.domain.course.entity.CourseStatus;
@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,8 +39,8 @@ public class CourseController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CourseListResponse>>> getCourses(@RequestParam(name = "status", required = false) CourseStatus status) {
-        List<CourseListResponse> response = courseService.getCourses(status);
+    public ResponseEntity<ApiResponse<CourseListPageResponse>> getCourses(@RequestParam(name = "status", required = false) CourseStatus status, @RequestParam(name = "page", defaultValue = "0") int page, @RequestParam(name = "size", defaultValue = "20") int size) {
+        CourseListPageResponse response = courseService.getCourses(status, page, size);
 
         return ResponseEntity
                 .ok(ApiResponse.success("강의 목록이 조회되었습니다.", response));

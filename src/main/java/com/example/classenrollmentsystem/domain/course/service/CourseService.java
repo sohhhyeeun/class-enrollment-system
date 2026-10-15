@@ -3,7 +3,7 @@ package com.example.classenrollmentsystem.domain.course.service;
 import com.example.classenrollmentsystem.domain.course.dto.request.CreateCourseRequest;
 import com.example.classenrollmentsystem.domain.course.dto.request.UpdateCourseStatusRequest;
 import com.example.classenrollmentsystem.domain.course.dto.response.CourseDetailResponse;
-import com.example.classenrollmentsystem.domain.course.dto.response.CourseListResponse;
+import com.example.classenrollmentsystem.domain.course.dto.response.CourseListPageResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.CreateCourseResponse;
 import com.example.classenrollmentsystem.domain.course.dto.response.UpdateCourseStatusResponse;
 import com.example.classenrollmentsystem.domain.course.entity.Course;
@@ -12,10 +12,10 @@ import com.example.classenrollmentsystem.domain.course.repository.CourseReposito
 import com.example.classenrollmentsystem.domain.user.entity.User;
 import com.example.classenrollmentsystem.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,12 +58,18 @@ public class CourseService {
         return new UpdateCourseStatusResponse(course.getId(), course.getStatus());
     }
 
-    public List<CourseListResponse> getCourses(CourseStatus status) {
-        List<Course> courses = courseRepository.findCoursesWithUser(status);
+    public CourseListPageResponse getCourses(CourseStatus status, int page, int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException("페이지 번호는 0 이상만 가능합니다.");
+        }
 
-        return courses.stream()
-                .map(CourseListResponse::from)
-                .toList();
+        if (size < 1 || size > 50) {
+            throw new IllegalArgumentException("페이지 크기는 1 이상 50 이하만 가능합니다.");
+        }
+
+        Page<Course> courses = courseRepository.findCoursesWithUser(status, PageRequest.of(page, size));
+
+        return CourseListPageResponse.from(courses);
     }
 
     public CourseDetailResponse getCourseDetail(Long courseId) {

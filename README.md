@@ -5,7 +5,7 @@
 * 크리에이터(강사)는 강의를 개설하고 수강 정원, 가격, 기간을 설정합니다.
 * 클래스메이트(수강생)는 원하는 강의에 수강 신청을 합니다.
 * 정원이 초과되면 신청이 불가합니다.
-* 신청 후 결제가 완료되어야 수강 확정됩니다.
+* 신청 후 결제가 완료되어야 수강이 확정됩니다.
 
 
 
@@ -15,7 +15,7 @@
 
 <p>
   <img src="https://img.shields.io/badge/Java 17-007396?style=for-the-badge&logo=openjdk&logoColor=white">
-  <img src="https://img.shields.io/badge/Spring Boot 3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+  <img src="https://img.shields.io/badge/Spring Boot 3.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
   <img src="https://img.shields.io/badge/Spring Data JPA-6DB33F?style=for-the-badge&logo=spring&logoColor=white">
   <img src="https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white">
   <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
@@ -34,29 +34,20 @@
 
 ## 3. 실행 방법
 
-### application.yml 설정
+### application-secret.yaml 설정
 
 ```yaml
-spring:
-  application:
-    name: class-enrollment-system
-
-  datasource:
-    url: jdbc:mysql://localhost:3307/class_enrollment
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        show-sql: true
+db:
+  username: {DB 사용자명}
+  password: {DB 비밀번호}
 ```
 
-→ 환경에 맞게 username과 password를 입력합니다.
+### 데이터베이스 생성
+
+```sql
+CREATE DATABASE class_enrollment;
+CREATE DATABASE class_enrollment_test; -- 테스트용
+```
 
 
 
@@ -96,13 +87,13 @@ CANCELLED: 취소됨
 ```
 
 - 결제 확정 처리는 자신이 신청한 강의에 대해 단순 상태 변경 방식으로 대체했습니다.
-- CONFIRMED 상태의 신청만 CANCELLED 상태로 변경할 수 있습니다.
+- PENDING, CONFIRMED 상태의 신청을 CANCELLED 상태로 변경할 수 있습니다.
 
 ### 4. 정원 반영 기준
 
 - PENDING(신청 완료, 결제 대기) 상태는 신청 인원에 반영되지 않습니다.
 - CONFIRMED(결제 완료, 수강 확정) 상태에서만 신청 인원이 증가하도록 구현했습니다.
-- CANCELLED(취소됨) 상태로 변경되는 경우에는 신청 인원이 감소하도록 구현했습니다.
+- CONFIRMED에서 CANCELLED(취소됨) 상태로 변경되는 경우에만 신청 인원이 감소하도록 구현했습니다.
 
 
 
@@ -113,6 +104,7 @@ CANCELLED: 취소됨
 필요한 데이터만 반환하도록 DTO를 기능별로 분리했습니다.
 
 - CourseListResponse
+- CourseListPageResponse
 - CourseDetailResponse
 - CreateEnrollmentResponse
 
@@ -140,8 +132,26 @@ Enrollment.create(...)
 ```json
 {
   "status": 400,
-  "message": "이미 신청한 강의입니다."
+  "message": "이미 신청한 강의는 재신청할 수 없습니다."
 }
+```
+
+### 5. 강의 목록 조회 시 추가 쿼리 방지
+
+강의마다 개설자를 따로 조회하는 추가 쿼리(N+1)가 발생하지 않도록 강의와 개설자를 한 번에 조회했습니다.
+
+```text
+SELECT c FROM Course c JOIN FETCH c.user
+```
+
+### 6. 강의 목록 페이지네이션
+
+- 한 번에 반환하는 강의 수를 기본 20개, 최대 50개로 제한했습니다.
+- 페이지 경계에서 중복이나 누락이 생기지 않도록 정렬 기준을 최근 등록순(id 내림차순)으로 고정했습니다.
+- 전체 개수 조회(count) 쿼리는 Fetch Join 없이 별도로 지정했습니다.
+
+```text
+Page<Course> findCoursesWithUser(CourseStatus status, Pageable pageable)
 ```
 
 
@@ -153,7 +163,6 @@ Enrollment.create(...)
 - [ ] 수강 취소 시 취소 가능 기간 제한 (예: 결제 후 7일 이내)
 - [ ] 대기열(waitlist) 기능
 - [ ] 강의별 수강생 목록 조회 (크리에이터 전용)
-- [ ] 신청 내역 페이지네이션
 
 ### 제약사항
 
@@ -215,7 +224,15 @@ GET /api/v1/courses
 GET /api/v1/courses?status=OPEN
 ```
 
-### 4. 강의 상세 조회
+### 4. 페이지네이션을 포함한 강의 목록 조회
+
+#### Request
+
+```text
+GET /api/v1/courses?page=0&size=20
+```
+
+### 5. 강의 상세 조회
 
 #### Request
 
@@ -223,12 +240,18 @@ GET /api/v1/courses?status=OPEN
 GET /api/v1/courses/{courseId}
 ```
 
-### 5. 강의 상태 변경
+### 6. 강의 상태 변경
 
 #### Request
 
 ```text
 PATCH /api/v1/courses/{courseId}/status
+```
+
+#### Header
+
+```text
+X-USER-ID: 1
 ```
 
 #### Body
@@ -239,7 +262,7 @@ PATCH /api/v1/courses/{courseId}/status
 }
 ```
 
-### 6. 수강 신청
+### 7. 수강 신청
 
 #### Request
 
@@ -253,7 +276,7 @@ POST /api/v1/courses/{courseId}/enrollments
 X-USER-ID: 2
 ```
 
-### 7. 결제 확정 처리
+### 8. 결제 확정 처리
 
 #### Request
 
@@ -261,7 +284,13 @@ X-USER-ID: 2
 PATCH /api/v1/enrollments/{enrollmentId}/confirm
 ```
 
-### 8. 수강 취소
+#### Header
+
+```text
+X-USER-ID: 2
+```
+
+### 9. 수강 취소
 
 #### Request
 
@@ -269,12 +298,24 @@ PATCH /api/v1/enrollments/{enrollmentId}/confirm
 PATCH /api/v1/enrollments/{enrollmentId}/cancel
 ```
 
-### 9. 내 수강 신청 목록 조회
+#### Header
+
+```text
+X-USER-ID: 2
+```
+
+### 10. 내 수강 신청 목록 조회
 
 #### Request
 
 ```text
 GET /api/v1/enrollments/my
+```
+
+#### Header
+
+```text
+X-USER-ID: 2
 ```
 
 
@@ -287,15 +328,18 @@ GET /api/v1/enrollments/my
 
 ## 10. 테스트 실행 방법
 
-### 테스트 항목
+### 1. 단위 테스트 (Mockito)
 
-#### 1. CourseServiceTest
+| 테스트 클래스 | 테스트 항목 |
+|---|---|
+| CourseServiceTest | 강의 등록<br>강의 상태 변경<br>페이지 번호 검증<br>페이지 크기 검증 |
+| EnrollmentServiceTest | 수강 신청<br>수강 확정<br>수강 취소 |
 
-- 강의 등록
-- 강의 상태 변경
+### 2. 통합 테스트 (실제 DB)
 
-#### 2. EnrollmentServiceTest
-
-- 수강 신청
-- 수강 확정
-- 수강 취소
+| 테스트 클래스 | 테스트 항목 |
+|---|---|
+| EnrollmentConcurrencyIntegrationTest | 같은 신청 건 동시 확정<br>같은 신청 건 동시 취소<br>서로 다른 사용자 동시 확정 |
+| CourseStatusConcurrencyIntegrationTest | 강의 상태 변경과 수강 확정 동시 요청 |
+| CourseQueryCountIntegrationTest | 강의 목록 조회 쿼리 수 |
+| CourseListPaginationIntegrationTest | 강의 목록 정렬 및 페이지 경계 |

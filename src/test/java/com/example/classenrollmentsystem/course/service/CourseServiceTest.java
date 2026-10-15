@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -104,5 +105,29 @@ class CourseServiceTest {
 
         // then
         assertThat(response.getStatus()).isEqualTo(CourseStatus.OPEN);
+    }
+
+    @Test
+    @DisplayName("강의 목록 조회 시 페이지 번호가 0보다 작으면 예외가 발생한다.")
+    void getCoursesWithNegativePage() {
+        // given
+        int page = -1;
+        int size = 20;
+
+        // when & then
+        assertThatThrownBy(() -> courseService.getCourses(null, page, size))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("강의 목록 조회 시 페이지 크기가 50을 넘으면 예외가 발생한다.")
+    void getCoursesWithTooLargeSize() {
+        // given
+        int page = 0;
+        int size = 51;
+
+        // when & then
+        assertThatThrownBy(() -> courseService.getCourses(null, page, size))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

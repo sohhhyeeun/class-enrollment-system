@@ -67,9 +67,9 @@ class CourseQueryCountIntegrationTest {
         statistics.clear();
 
         // when
-        courseService.getCourses(null);
+        courseService.getCourses(null, 0, 5);
 
         // then
-        assertThat(statistics.getPrepareStatementCount()).isEqualTo(1);
+        assertThat(statistics.getPrepareStatementCount()).isEqualTo(2);
     }
 }

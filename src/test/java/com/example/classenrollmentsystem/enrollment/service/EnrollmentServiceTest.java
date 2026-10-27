@@ -18,14 +18,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class EnrollmentServiceTest {
@@ -78,6 +82,77 @@ class EnrollmentServiceTest {
 
         // then
         assertThat(response.getEnrollmentId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("같은 강의에 동시에 신청해 중복 저장이 실패하면 이미 신청한 강의와 같은 예외가 발생한다.")
+    void createEnrollmentWithDuplicateSave() {
+        // given
+        Long userId = 1L;
+        Long courseId = 1L;
+
+        User classmate = User.create("수강생01");
+        User creator = User.create("강사01");
+
+        ReflectionTestUtils.setField(creator, "id", 2L);
+
+        Course course = Course.create(
+                "강의 제목01",
+                "강의 설명01",
+                10000,
+                30,
+                LocalDate.now(),
+                LocalDate.now().plusDays(30),
+                creator
+        );
+
+        course.updateStatus(CourseStatus.OPEN);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(classmate));
+        given(courseRepository.findById(courseId)).willReturn(Optional.of(course));
+        given(enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)).willReturn(false);
+        given(enrollmentRepository.saveAndFlush(any(Enrollment.class))).willThrow(DataIntegrityViolationException.class);
+
+        // when & then
+        assertThatThrownBy(() -> enrollmentService.createEnrollment(userId, courseId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("이미 신청한 강의는 재신청할 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("이미 신청한 강의에 다시 신청하면 예외가 발생한다.")
+    void createEnrollmentWithAlreadyEnrolled() {
+        // given
+        Long userId = 1L;
+        Long courseId = 1L;
+
+        User classmate = User.create("수강생01");
+        User creator = User.create("강사01");
+
+        ReflectionTestUtils.setField(creator, "id", 2L);
+
+        Course course = Course.create(
+                "강의 제목01",
+                "강의 설명01",
+                10000,
+                30,
+                LocalDate.now(),
+                LocalDate.now().plusDays(30),
+                creator
+        );
+
+        course.updateStatus(CourseStatus.OPEN);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(classmate));
+        given(courseRepository.findById(courseId)).willReturn(Optional.of(course));
+        given(enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)).willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> enrollmentService.createEnrollment(userId, courseId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("이미 신청한 강의는 재신청할 수 없습니다.");
+
+        then(enrollmentRepository).should(never()).saveAndFlush(any());
     }
 
     @Test

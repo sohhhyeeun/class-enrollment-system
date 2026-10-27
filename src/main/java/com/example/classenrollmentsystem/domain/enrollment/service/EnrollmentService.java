@@ -13,6 +13,7 @@ import com.example.classenrollmentsystem.domain.enrollment.repository.Enrollment
 import com.example.classenrollmentsystem.domain.user.entity.User;
 import com.example.classenrollmentsystem.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +50,14 @@ public class EnrollmentService {
         }
 
         Enrollment enrollment = Enrollment.create(user, course);
-        Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
+        Enrollment savedEnrollment;
+
+        // 동시 신청으로 중복 저장 시 재신청 불가와 같은 예외로 처리
+        try {
+            savedEnrollment = enrollmentRepository.saveAndFlush(enrollment);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("이미 신청한 강의는 재신청할 수 없습니다.", e);
+        }
 
         return new CreateEnrollmentResponse(savedEnrollment.getId());
     }

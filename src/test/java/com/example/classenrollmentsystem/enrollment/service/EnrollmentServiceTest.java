@@ -71,7 +71,7 @@ class EnrollmentServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(classmate));
         given(courseRepository.findById(courseId)).willReturn(Optional.of(course));
         given(enrollmentRepository.existsByUserIdAndCourseId(userId, courseId)).willReturn(false);
-        given(enrollmentRepository.save(any(Enrollment.class))).willReturn(enrollment);
+        given(enrollmentRepository.saveAndFlush(any(Enrollment.class))).willReturn(enrollment);
 
         // when
         CreateEnrollmentResponse response = enrollmentService.createEnrollment(userId, courseId);

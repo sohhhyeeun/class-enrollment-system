@@ -118,7 +118,7 @@ public class EnrollmentService {
 
     @Transactional(readOnly = true)
     public List<MyEnrollmentResponse> getMyEnrollments(Long userId) {
-        List<Enrollment> enrollments = enrollmentRepository.findAllByUserId(userId);
+        List<Enrollment> enrollments = enrollmentRepository.findAllWithCourseByUserId(userId);
 
         return enrollments.stream()
                 .map(MyEnrollmentResponse::from)

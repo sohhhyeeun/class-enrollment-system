@@ -14,6 +14,9 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     boolean existsByUserIdAndCourseId(Long userId, Long courseId);
     List<Enrollment> findAllByUserId(Long userId);
 
+    @Query("SELECT e FROM Enrollment e JOIN FETCH e.course WHERE e.user.id = :userId")
+    List<Enrollment> findAllWithCourseByUserId(@Param("userId") Long userId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Enrollment e WHERE e.id = :id")
     Optional<Enrollment> findByIdWithPessimisticLock(@Param("id") Long id);
